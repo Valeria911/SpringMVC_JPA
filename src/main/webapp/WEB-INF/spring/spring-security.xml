@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean:beans xmlns:bean="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/security
+        http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <http auto-config="true">
+        <intercept-url pattern="/inicio" access="permitAll()"/>
+        <intercept-url pattern="/contacto" access="permitAll()"/>
+        <intercept-url pattern="/usuario/lista" access="hasAnyAuthority('USER', 'ADMIN')"/>
+        <intercept-url pattern="/capacitacion/lista" access="hasAnyAuthority('USER','ADMIN')"/>
+        <intercept-url pattern="/usuario/agregar" access="hasAnyAuthority('ADMIN')"/>
+        <intercept-url pattern="/capacitacion/agregar" access="hasAnyAuthority('ADMIN')"/>
+        <intercept-url pattern="/capacitacion/actualizar/{id}" access="hasAnyAuthority('ADMIN')"/>
+        <intercept-url pattern="/usuario/actualizar/{id}" access="hasAnyAuthority('ADMIN')"/>
+        <intercept-url pattern="/capacitacion/eliminar/{id}" access="hasAnyAuthority('ADMIN')"/>
+        <intercept-url pattern="/usuario/eliminar/{id}" access="hasAnyAuthority('ADMIN')"/>
+
+        <form-login login-page="/login" authentication-failure-url="/error"
+                    username-parameter="username" password-parameter="password"/>
+        <csrf disabled="true"/>
+        <logout logout-success-url="/inicio"/>
+    </http>
+
+    <authentication-manager>
+        <authentication-provider>
+            <password-encoder hash="bcrypt"/>
+            <jdbc-user-service data-source-ref="ds"
+                               users-by-username-query="select username as username, password, 1 as enabled from roles where username = ?"
+                               authorities-by-username-query="select username as username, rol as authority from roles where username = ?" />
+        </authentication-provider>
+    </authentication-manager>
+</bean:beans>
